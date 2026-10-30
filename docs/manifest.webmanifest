@@ -1,0 +1,29 @@
+{
+  "name": "M360 · Love Expression Assembly",
+  "short_name": "M360",
+  "description": "Prendre soin de chacun, sous tous les angles.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#003F3D",
+  "theme_color": "#003F3D",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icons/m360-icone-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/m360-icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/m360-icone-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
