@@ -482,7 +482,7 @@ a.qr{display:block}
 <script>
 "use strict";
 /* M360 · éléments communs à la carte de bienvenue et à l'application. */
-const CONFIG = {"api":"https://script.google.com/macros/s/AKfycbw2Qf9gY5TkN8Zgwzp5UCYq0vnVbt5kWA1P4bsSzvDqW5Wvf7FVRjiw2wFvSLn35nF0Pw/exec","urlCarte":"https://vhechurch.github.io/m360/bienvenue/","urlApp":"https://vhechurch.github.io/m360/"};
+const CONFIG = {"api":"https://script.google.com/macros/s/AKfycbw2Qf9gY5TkN8Zgwzp5UCYq0vnVbt5kWA1P4bsSzvDqW5Wvf7FVRjiw2wFvSLn35nF0Pw/exec","urlCarte":"https://m360.vhechurch.ca/bienvenue/","urlApp":"https://m360.vhechurch.ca/","domaine":"m360.vhechurch.ca"};
 const $ = (s, r = document) => r.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 // Langue de l'interface : choisie par la personne (FR / EN), sinon celle du téléphone. Le texte est écrit en français dans le code ;

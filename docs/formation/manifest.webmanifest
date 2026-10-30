@@ -1,0 +1,30 @@
+{
+  "id": "./",
+  "name": "M360 Formation · Love Expression Assembly",
+  "short_name": "Formation",
+  "description": "Apprendre M360 pas à pas : la vision, votre rôle, des exercices guidés.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#003F3D",
+  "theme_color": "#003F3D",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icons/formation-icone-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/formation-icone-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/formation-icone-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
