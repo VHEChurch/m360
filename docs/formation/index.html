@@ -378,6 +378,10 @@ a.qr{display:block}
 .lang-sw.sm button{padding:3px 8px;font-size:11px}
 .login-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .login-top .lg{width:min(300px,68%)!important}
+/* En anglais : le logo seul et le slogan écrit en texte, à la place du slogan français dessiné dans l'image */
+.lg-en{display:block}
+.lg-en img{display:block;width:100%;height:auto}
+.lg-en span{display:block;margin-top:.45em;font-size:clamp(9.5px,3.1vw,14px);font-weight:500;line-height:1.25;color:#fff;letter-spacing:.01em;white-space:nowrap}
 @media (max-width:420px){.hdr .who > span{display:none}}
 /* La règle des 5 : jauges et alertes de taille des cercles et des GEM */
 .gauge.warn i{background:var(--warn)}
@@ -715,7 +719,7 @@ Object.assign(EN, {
   "Cette action est réservée au responsable.": "This action is reserved for the team leader.", "Cette fiche n'existe plus. Rechargez la page.": "This record no longer exists. Please reload the page.",
 });
 
-window.CAPSULES = {"00-vision":{"en":true,"afficheEn":true},"01-croissance":{"en":true,"afficheEn":true},"02-structure":{"en":true,"afficheEn":true},"03-connexion":{"en":false,"afficheEn":false},"04-cercle":{"en":false,"afficheEn":false},"05-gem":{"en":false,"afficheEn":false},"06-amis":{"en":false,"afficheEn":false},"07-famille":{"en":false,"afficheEn":false},"08-pasteur":{"en":false,"afficheEn":false},"09-respect":{"en":false,"afficheEn":false}};
+window.CAPSULES = {"00-vision":{"en":true,"afficheEn":true},"01-croissance":{"en":true,"afficheEn":true},"02-structure":{"en":true,"afficheEn":true},"03-connexion":{"en":true,"afficheEn":true},"04-cercle":{"en":false,"afficheEn":false},"05-gem":{"en":false,"afficheEn":false},"06-amis":{"en":false,"afficheEn":false},"07-famille":{"en":false,"afficheEn":false},"08-pasteur":{"en":false,"afficheEn":false},"09-respect":{"en":false,"afficheEn":false}};
 /* M360 Formation · contenu des cours (version française ; les textes anglais sont dans contenu-en.js, aux mêmes clés).
    Chaque leçon : intro, étapes (chacune peut piloter le bac à sable : g = { role, vue, etat, cible }), astuce,
    exercice (action attendue dans le bac à sable), quiz (bonne = index de la bonne réponse), mémo (pour la fiche-mémo). */
