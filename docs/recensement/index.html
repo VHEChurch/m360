@@ -493,13 +493,16 @@ function choisirLangue(l) { LANG = l === "en" ? "en" : "fr"; document.documentEl
 const tr = (s, ...args) => String(LANG === "en" && EN[s] != null ? EN[s] : s).replace(/\{(\d)\}/g, (_, i) => args[i]);
 // Les GEM gardent leur nom français ; en anglais, son sens suit (« Joie · Joy »), pour qu'un anglophone comprenne le nom que tout le monde emploie
 const GEM_EN = { Amour: "Love", Joie: "Joy", "Bonté": "Goodness", "Fidélité": "Faithfulness" };
-const nomGemLang = (n) => (LANG === "en" && GEM_EN[n] ? `${n} · ${GEM_EN[n]}` : n);   // espaces insécables : le nom et son sens ne se séparent pas
+const nomGemLang = (n, l = LANG) => (l === "en" && GEM_EN[n] ? `${n} · ${GEM_EN[n]}` : n);   // espaces insécables : le nom et son sens ne se séparent pas
+// Le nom d'un GEM dans la langue d'un message (celle de la carte du nouveau), et non dans celle de l'écran
+const nomGemDans = (g, l) => (g ? nomGemLang(g.nomFr ?? g.nom, l) : "");
 // Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
 function nomsGem(groupes) {
   (groupes || []).forEach((g) => {
     if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
     const fr = g.nom;
     Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+    Object.defineProperty(g, "nomFr", { value: fr, configurable: true });
   });
 }
 const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue

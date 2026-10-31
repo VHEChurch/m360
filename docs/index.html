@@ -650,13 +650,16 @@ function choisirLangue(l) { LANG = l === "en" ? "en" : "fr"; document.documentEl
 const tr = (s, ...args) => String(LANG === "en" && EN[s] != null ? EN[s] : s).replace(/\{(\d)\}/g, (_, i) => args[i]);
 // Les GEM gardent leur nom français ; en anglais, son sens suit (« Joie · Joy »), pour qu'un anglophone comprenne le nom que tout le monde emploie
 const GEM_EN = { Amour: "Love", Joie: "Joy", "Bonté": "Goodness", "Fidélité": "Faithfulness" };
-const nomGemLang = (n) => (LANG === "en" && GEM_EN[n] ? `${n} · ${GEM_EN[n]}` : n);   // espaces insécables : le nom et son sens ne se séparent pas
+const nomGemLang = (n, l = LANG) => (l === "en" && GEM_EN[n] ? `${n} · ${GEM_EN[n]}` : n);   // espaces insécables : le nom et son sens ne se séparent pas
+// Le nom d'un GEM dans la langue d'un message (celle de la carte du nouveau), et non dans celle de l'écran
+const nomGemDans = (g, l) => (g ? nomGemLang(g.nomFr ?? g.nom, l) : "");
 // Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
 function nomsGem(groupes) {
   (groupes || []).forEach((g) => {
     if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
     const fr = g.nom;
     Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+    Object.defineProperty(g, "nomFr", { value: fr, configurable: true });
   });
 }
 const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
@@ -2163,7 +2166,7 @@ VUES.semaine = () => {
     <section class="card report-hero"><span class="eyebrow">${tr("Rapport de la semaine")}</span><h2>${tr("Culte du dimanche {0}", long(d8(sem)))}</h2>
       <div class="progress" role="progressbar" aria-valuenow="${fait}" aria-valuemin="0" aria-valuemax="${total}"><i style="width:${pct(fait, total)}%"></i></div>
       <div class="meta"><span class="num">${tr("Étapes : {0} sur {1}", fait, total)}</span><span>${tr("À envoyer avant le {0}", echeanceTxt(sem))}</span></div></section>
-    ${nvs.map((n) => { const msg = msgBienvenue(n, g.type === "cercle" ? `${g.nom}, GEM ${gemG?.nom || ""}` : `GEM ${g.nom}`);
+    ${nvs.map((n) => { const msg = msgBienvenue(n, g.type === "cercle" ? `${g.nom}, GEM ${nomGemDans(gemG, n.lang)}` : `GEM ${nomGemDans(g, n.lang)}`);
       return `<section class="card nv-card"><span class="eyebrow">${ic("seed", 14)} ${tr("Nouveau confié par les Amis des Nouveaux")}</span><h2 style="margin-top:6px">${esc(nomN(n))}</h2>
         <p style="font-size:14px;margin-top:4px">${tr("Première visite le dimanche {0}", long(d8(n.dimanche)))}${n.invitePar ? `, ${tr("sur l'invitation de {0}", esc(n.invitePar))}` : ""}.${n.zone ? ` ${tr("Zone {0}.", zoneNom(n.zone))}` : ""}${n.priere ? ` ${tr("Sujet de prière : « {0} ».", esc(n.priere))}` : ""} ${tr("Un appel de bienvenue dans les 48 heures fait toute la différence.")}</p>
         <p class="wa-msg" style="margin-top:10px">${esc(msg)}</p>
