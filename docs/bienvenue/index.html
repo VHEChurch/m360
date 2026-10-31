@@ -491,6 +491,7 @@ const EN = {};
 let LANG = (() => { try { const l = localStorage.getItem("m360-lang"); if (l === "fr" || l === "en") return l; } catch (e) { /* ignoré */ } return (navigator.language || "fr").startsWith("en") ? "en" : "fr"; })();
 function choisirLangue(l) { LANG = l === "en" ? "en" : "fr"; document.documentElement.lang = LANG; try { localStorage.setItem("m360-lang", LANG); } catch (e) { /* ignoré */ } }
 const tr = (s, ...args) => String(LANG === "en" && EN[s] != null ? EN[s] : s).replace(/\{(\d)\}/g, (_, i) => args[i]);
+const guil = (s) => (LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
 const MOIS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];

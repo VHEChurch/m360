@@ -648,6 +648,7 @@ const EN = {};
 let LANG = (() => { try { const l = localStorage.getItem("m360-lang"); if (l === "fr" || l === "en") return l; } catch (e) { /* ignoré */ } return (navigator.language || "fr").startsWith("en") ? "en" : "fr"; })();
 function choisirLangue(l) { LANG = l === "en" ? "en" : "fr"; document.documentElement.lang = LANG; try { localStorage.setItem("m360-lang", LANG); } catch (e) { /* ignoré */ } }
 const tr = (s, ...args) => String(LANG === "en" && EN[s] != null ? EN[s] : s).replace(/\{(\d)\}/g, (_, i) => args[i]);
+const guil = (s) => (LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
 const MOIS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -881,7 +882,7 @@ Object.assign(EN, {
   "Ne vient plus depuis plus d'un mois et ne répond presque plus.": "Has not come for over a month and barely answers.",
   "Opération Brebis retrouvées : un membre actif le relance nommément (appel, visite, invitation).": "Lost Sheep Found: an active member reaches out personally (call, visit, invitation).",
   "Arrivé depuis moins de trois mois.": "Arrived less than three months ago.",
-  "L'accueillir, lui présenter la vision et le confier à un cercle (Amis des Nouveaux).": "Welcome them, share the vision and entrust them to a circle (Friends of Newcomers).",
+  "L'accueillir, lui présenter la vision et le confier à un cercle (Amis des Nouveaux).": "Welcome them, share the vision and entrust them to a circle (Newcomers' Friends).",
   "GA": "SW", "AP": "AP", "SERVITEUR": "HELPER", "Serviteur": "Helper", "assistant pasteur": "an assistant pastor", "gagneur d'âmes": "a soul winner",
   "leaders": "leaders", "zone d'intégration": "integration zone", "Recul": "Step back", "Arrivée": "Arrival", "Progression": "Step up",
   "Mercredi des Champions": "Champions Wednesday", "Réunions de GEM": "GEM meetings", "Oui, c'est urgent": "Yes, it's urgent",
@@ -987,7 +988,7 @@ Object.assign(EN, {
   "Merci {0} ! Ton rapport de la semaine du {1} est arrivé. Bon dimanche !": "Thank you {0}! Your report for the week of {1} has arrived. Have a blessed Sunday!",
   "culte": "church", "mercredi": "Wednesday", "réunion du GEM": "GEM meeting", "présent": "present", "absent": "absent", "non indiqué": "not recorded",
   "surtout dans la zone {0}": "mostly in the {0} zone", "Rapport de la semaine": "Weekly report", "Culte du dimanche {0}": "Sunday service of {0}",
-  "À envoyer avant le {0}": "Due by {0}", "Nouveau confié par les Amis des Nouveaux": "Newcomer entrusted by Friends of Newcomers",
+  "À envoyer avant le {0}": "Due by {0}", "Nouveau confié par les Amis des Nouveaux": "Newcomer entrusted by Newcomers' Friends",
   "Première visite le dimanche {0}": "First visit on Sunday {0}", "sur l'invitation de {0}": "invited by {0}", "Zone {0}.": "{0} zone.",
   "Sujet de prière : « {0} ».": "Prayer request: “{0}”.", "Un appel de bienvenue dans les 48 heures fait toute la différence.": "A welcome call within 48 hours makes all the difference.",
   "Appeler": "Call", "Appel de bienvenue fait": "Welcome call done", "Appel de bienvenue noté": "Welcome call recorded", "1. Présences": "1. Attendance",
@@ -1009,7 +1010,7 @@ Object.assign(EN, {
   "Rapports des cercles": "Circle reports", "moral {0}/5": "mood {0}/5",
   "Chaque responsable de cercle fait le point sur ses membres. Vous voyez la synthèse et vous suivez vos responsables.": "Each circle leader checks in on their members. You see the summary and you care for your leaders.",
   "Brebis à visiter": "Sheep to visit", "Et toi, comment vas-tu ?": "And you, how are you?", "Le pasteur suit aussi ses responsables.": "The pastor also cares for his leaders.",
-  "Nouveaux confiés à nos cercles": "Newcomers entrusted to our circles", "Arrivés par les Amis des Nouveaux ces 5 dernières semaines.": "Arrived through Friends of Newcomers in the last 5 weeks.",
+  "Nouveaux confiés à nos cercles": "Newcomers entrusted to our circles", "Arrivés par les Amis des Nouveaux ces 5 dernières semaines.": "Arrived through Newcomers' Friends in the last 5 weeks.",
   "Concours du cycle": "Cycle contest", "en décoration": "in decoration", "décoration : note à venir": "decoration: rating to come",
   "invités pendant le service": "guests during our service", "brebis revenues": "sheep returned", "Notre GEM en un coup d'œil": "Our GEM at a glance", "Anniversaires": "Birthdays",
   "Chaque GEM sert deux dimanches de suite : nettoyage, décoration, mise en place. Un rapport avec photos atteste le travail.": "Each GEM serves two Sundays in a row: cleaning, decoration, setup. A report with photos confirms the work.",
@@ -1534,7 +1535,7 @@ function listeAlertes(al, compact) {
       <div class="name" style="font-weight:700;display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="link" style="font-size:15px;color:var(--ink)" data-a="fiche" data-v="${p.id}">${esc(nomP(p))}</button>${rangTag(p)}</div>
       <div class="sub" style="font-size:12.5px;color:var(--muted)">${lieu}</div>
       <div class="reasons">${a.raisons.map(sevPill).join("")}</div>
-      ${a.type === "responsable" && a.lr.mot ? `<p style="font-size:13.5px;margin-top:8px;color:var(--ink-2)">« ${esc(a.lr.mot)} »</p>` : ""}
+      ${a.type === "responsable" && a.lr.mot ? `<p style="font-size:13.5px;margin-top:8px;color:var(--ink-2)">${guil(esc(a.lr.mot))}</p>` : ""}
       ${pris ? `<div class="taken">${ic("check", 15)}${pris}</div>` : `<div class="acts"><button class="btn btn-s btn-sm" data-a="prendre" data-v="${a.cle}" data-p="${p.id}" data-s="${a.sem}">${tr("Je m'en occupe")}</button>${A.moi.role === "pasteur" && !compact && D.aps.length ? `<button class="btn btn-s btn-sm" data-a="confier-ap" data-v="${a.cle}" data-p="${p.id}" data-s="${a.sem}">${tr("Confier à un AP")}</button>` : ""}<button class="btn btn-s btn-sm" data-a="fiche" data-v="${p.id}">${tr("Voir la fiche")}</button></div>`}
     </div></div>`;
   }).join("");
@@ -2005,7 +2006,7 @@ function feuilleSuivi(sh) {
       ${etape(n.recu, "Réception à la fin du culte", n.recu ? [accomp, r.presentateur ? tr("vision présentée par {0}", esc(prenomDe(r.presentateur))) : "", n.cadeau ? tr("cadeau remis") : ""].filter(Boolean).join(" · ") : tr("Départ avant la réception. Le numéro est connu : le remerciement et l'appel restent à faire."))}
       ${etape(n.carte, "Carte de bienvenue", n.carte ? `${tr(INTENTIONS[n.intention] || "")}${n.eglise ? ` · ${tr("a déjà une église")}` : ""}` : tr("Pas de carte remplie."))}
       ${etape(!!n.merci, "Remerciement, le jour même", n.merci ? tr("Envoyé {0} par {1}", quand(n.merci.le, n.dimanche), esc(prenomDe(n.merci.par))) + (jourDe(n.merci.le, n.dimanche) > 0 ? ` · ${tr("en retard")}` : "") : tr("À envoyer au nom du pasteur"), merciBloc)}
-      ${n.intention !== "visite" ? etape(appelFait(n), "Appel des Amis des Nouveaux, avant mercredi soir", appelFait(n) ? `${quand(n.appel.le, n.dimanche)} · ${tr(RESULTATS[n.appel.res])}${n.appel.ressenti ? ` · ${tr("ressenti : {0}", tr(RESSENTIS[n.appel.ressenti]))}` : ""}${n.appel.cercleOk === "non" ? ` · <b>${tr("le groupe ne l'avait pas encore appelé")}</b>` : ""}${n.appel.questions ? ` · « ${esc(n.appel.questions)} »` : ""}` : n.appel?.res === "pas_reponse" ? tr("1er essai sans réponse, à rappeler.") : "", appelBloc) : ""}
+      ${n.intention !== "visite" ? etape(appelFait(n), "Appel des Amis des Nouveaux, avant mercredi soir", appelFait(n) ? `${quand(n.appel.le, n.dimanche)} · ${tr(RESULTATS[n.appel.res])}${n.appel.ressenti ? ` · ${tr("ressenti : {0}", tr(RESSENTIS[n.appel.ressenti]))}` : ""}${n.appel.cercleOk === "non" ? ` · <b>${tr("le groupe ne l'avait pas encore appelé")}</b>` : ""}${n.appel.questions ? ` · ${guil(esc(n.appel.questions))}` : ""}` : n.appel?.res === "pas_reponse" ? tr("1er essai sans réponse, à rappeler.") : "", appelBloc) : ""}
       ${n.intention === "rejoindre" ? etape(!!n.cercle, "Confié à un groupe", n.cercle ? `${esc(nomGroupe(n.cercle))} · ${tr("par {0}", esc(prenomDe(n.confiePar)))}` : "", groupeBloc) : ""}
       ${n.intention === "rejoindre" ? etape(contactFait(n), "Contact du groupe", contactFait(n) ? tr("Le groupe a pris contact : relais au GEM.") : n.cercle ? tr("En attente de l'appel du groupe.") : "") : ""}
     </ol>
