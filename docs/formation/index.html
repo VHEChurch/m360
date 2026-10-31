@@ -630,7 +630,18 @@ const EN = {};
 let LANG = (() => { try { const l = localStorage.getItem("m360-lang"); if (l === "fr" || l === "en") return l; } catch (e) { /* ignoré */ } return (navigator.language || "fr").startsWith("en") ? "en" : "fr"; })();
 function choisirLangue(l) { LANG = l === "en" ? "en" : "fr"; document.documentElement.lang = LANG; try { localStorage.setItem("m360-lang", LANG); } catch (e) { /* ignoré */ } }
 const tr = (s, ...args) => String(LANG === "en" && EN[s] != null ? EN[s] : s).replace(/\{(\d)\}/g, (_, i) => args[i]);
-const guil = (s) => (LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
+// Les GEM gardent leur nom français ; en anglais, son sens suit (« Joie · Joy »), pour qu'un anglophone comprenne le nom que tout le monde emploie
+const GEM_EN = { Amour: "Love", Joie: "Joy", "Bonté": "Goodness", "Fidélité": "Faithfulness" };
+const nomGemLang = (n) => (LANG === "en" && GEM_EN[n] ? `${n} · ${GEM_EN[n]}` : n);   // espaces insécables : le nom et son sens ne se séparent pas
+// Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
+function nomsGem(groupes) {
+  (groupes || []).forEach((g) => {
+    if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
+    const fr = g.nom;
+    Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+  });
+}
+const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
 const MOIS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -1448,7 +1459,7 @@ const LECONS_EN = {
     titre: "Our structure: GEMs, circles, families",
     intro: "We keep the 5 large GEMs, which carry the fire. Inside them, care circles of 5 or 6 people, formed by neighbourhood. And in each zone, a Family of Honour gathers everyone once a month.",
     etapes: [
-      { t: "The 5 GEMs", x: "Amour (Love), Patience, Joie (Joy), Bonté (Goodness), Fidélité (Faithfulness): the names stay in French, as in M360. Each GEM keeps its WhatsApp group, its meeting, its turn of service at the temple, and takes part in the contest." },
+      { t: "The 5 GEMs", x: "Amour · Love, Patience, Joie · Joy, Bonté · Goodness, Fidélité · Faithfulness. The French name is the one everyone uses; in English, M360 shows its meaning next to it. Each GEM keeps its WhatsApp group, its meeting, its turn of service at the temple, and takes part in the contest." },
       { t: "Care circles", x: "In each GEM, 3 or 4 circles of about 6 people who live close to one another. The circle leader checks in on each person every week: they are the one who fills in the follow-up." },
       { t: "Families of Honour", x: "Edmonton is divided into 4 zones: North, South, West, Centre. The Family of Honour of each zone gathers the members of the neighbourhood once a month. It does no individual follow-up: that stays with the GEM and the circle." },
       { t: "Place, not rank", x: "The rank in the training path (Member, Servant, GA, AP) describes each person's formation journey. What you see in M360 depends on your place in the care tree, never on your rank." },
@@ -1457,7 +1468,7 @@ const LECONS_EN = {
     astuce: "If you wonder “who is looking after this person?”, open their profile: the “Shepherd” line tells you.",
     quiz: [
       { q: "Who does the weekly follow-up of a member?", r: ["The leader of their Family of Honour", "The leader of their circle", "The leader of their department"], pourquoi: "The circle does the follow-up. The Family of Honour gathers people by neighbourhood, without individual follow-up." },
-      { q: "An AP is a member of GEM Joie. What do they see in M360?", r: ["All of GEM Joie, because they are an AP", "What their place lets them see (for example their circle if they lead one) and the people the pastor entrusts to them"], pourquoi: "What you see follows the care tree, never the rank." },
+      { q: "An AP is a member of GEM Joie · Joy. What do they see in M360?", r: ["All of GEM Joie · Joy, because they are an AP", "What their place lets them see (for example their circle if they lead one) and the people the pastor entrusts to them"], pourquoi: "What you see follows the care tree, never the rank." },
       { q: "Cercle Centre now has 7 members. What should be done?", r: ["Nothing, it stays one circle", "Open a new circle in the GEM", "Create a new GEM right away"], pourquoi: "A circle has at most 6 members: beyond that, a new circle opens. A GEM multiplies only when it already has 5 circles." },
     ],
     memo: ["Rule of 5: at most 6 members per circle, at most 5 circles per GEM (25 to 30 people).", "Family of Honour = monthly zone gathering, no follow-up.", "You see according to your place, not your rank."],
@@ -2060,7 +2071,7 @@ const GLOSSAIRE_EN = [
   ["Lapsed", "A member absent for more than a month, who hardly answers anymore."],
   ["Family of Honour", "The monthly gathering of the members of one zone, without individual follow-up."],
   ["GA", "Soul winner (Gagneur d'âmes): evangelises, invites, and cares for the souls entrusted to them."],
-  ["GEM", "Encouragement and Harvest Group (Groupe d'Encouragement et de Moisson). Five today: Amour (Love), Patience, Joie (Joy), Bonté (Goodness), Fidélité (Faithfulness)."],
+  ["GEM", "Our small groups for encouragement and harvest. The name comes from French: Groupe d'Encouragement et de Moisson. In English, a gem is a precious stone, and every person in a GEM is one. Five today: Amour · Love, Patience, Joie · Joy, Bonté · Goodness, Fidélité · Faithfulness."],
   ["Irregular", "A member who comes less than one Sunday out of two."],
   ["Kaleo", "The church's invitation platform, linked to M360."],
   ["Check-in", "How a person is doing, on three axes (spiritual, mood, practical), from 1 to 5. In French: météo."],

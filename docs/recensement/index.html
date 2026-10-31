@@ -491,7 +491,18 @@ const EN = {};
 let LANG = (() => { try { const l = localStorage.getItem("m360-lang"); if (l === "fr" || l === "en") return l; } catch (e) { /* ignoré */ } return (navigator.language || "fr").startsWith("en") ? "en" : "fr"; })();
 function choisirLangue(l) { LANG = l === "en" ? "en" : "fr"; document.documentElement.lang = LANG; try { localStorage.setItem("m360-lang", LANG); } catch (e) { /* ignoré */ } }
 const tr = (s, ...args) => String(LANG === "en" && EN[s] != null ? EN[s] : s).replace(/\{(\d)\}/g, (_, i) => args[i]);
-const guil = (s) => (LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
+// Les GEM gardent leur nom français ; en anglais, son sens suit (« Joie · Joy »), pour qu'un anglophone comprenne le nom que tout le monde emploie
+const GEM_EN = { Amour: "Love", Joie: "Joy", "Bonté": "Goodness", "Fidélité": "Faithfulness" };
+const nomGemLang = (n) => (LANG === "en" && GEM_EN[n] ? `${n} · ${GEM_EN[n]}` : n);   // espaces insécables : le nom et son sens ne se séparent pas
+// Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
+function nomsGem(groupes) {
+  (groupes || []).forEach((g) => {
+    if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
+    const fr = g.nom;
+    Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+  });
+}
+const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
 const MOIS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -654,7 +665,7 @@ const ETAPES = [
        <p class="rc-osm" id="r-osm">${Z.cherche && !Z.sugg.length && b.adresse.length > 5 ? t.aucune : t.osm}</p></div>
      <div class="rc-f rc-cp"><label for="r-cp">${t.cp}</label><input id="r-cp" data-r="cp" value="${esc(b.cp)}" autocomplete="postal-code" autocapitalize="characters" maxlength="7" placeholder="T5T 3K7"></div>`,
     (b) => b.cp.replace(/\s/g, "").length >= 3],
-  ["gem", (t, b) => `<h1>${t.q4}</h1><p class="rc-h">${t.q4h}</p><div class="tl-g g5">${GEMS_R.map(([id, n]) => tuile("gem", id, n, "", b.gem === id, "big")).join("")}</div>
+  ["gem", (t, b) => `<h1>${t.q4}</h1><p class="rc-h">${t.q4h}</p><div class="tl-g g5">${GEMS_R.map(([id, n]) => tuile("gem", id, nomGemLang(n), "", b.gem === id, "big")).join("")}</div>
      <div class="tl-g">${tuile("gem", "aucun", t.sansGem, "", b.gem === "aucun", "soft")}</div>`, (b) => !!b.gem],
   ["rang", (t, b) => `<h1>${t.q5}</h1><div class="tl-g">${Object.entries(t.rangs).map(([k, [l, s]]) => tuile("rang", k, l, s, b.rang === k)).join("")}</div>`, (b) => !!b.rang],
   ["deps", (t, b) => `<h1>${t.q6}</h1><p class="rc-h">${t.q6h}</p><div class="rc-chips">${DEPS.map((d) => `<button type="button" class="rc-chip" data-a="dep" data-v="${esc(d)}" aria-pressed="${b.departements.includes(d)}">${b.departements.includes(d) ? ic("check", 14) : ""}${esc(nomDep(d))}</button>`).join("")}</div>

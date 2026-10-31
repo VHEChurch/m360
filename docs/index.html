@@ -648,7 +648,18 @@ const EN = {};
 let LANG = (() => { try { const l = localStorage.getItem("m360-lang"); if (l === "fr" || l === "en") return l; } catch (e) { /* ignoré */ } return (navigator.language || "fr").startsWith("en") ? "en" : "fr"; })();
 function choisirLangue(l) { LANG = l === "en" ? "en" : "fr"; document.documentElement.lang = LANG; try { localStorage.setItem("m360-lang", LANG); } catch (e) { /* ignoré */ } }
 const tr = (s, ...args) => String(LANG === "en" && EN[s] != null ? EN[s] : s).replace(/\{(\d)\}/g, (_, i) => args[i]);
-const guil = (s) => (LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
+// Les GEM gardent leur nom français ; en anglais, son sens suit (« Joie · Joy »), pour qu'un anglophone comprenne le nom que tout le monde emploie
+const GEM_EN = { Amour: "Love", Joie: "Joy", "Bonté": "Goodness", "Fidélité": "Faithfulness" };
+const nomGemLang = (n) => (LANG === "en" && GEM_EN[n] ? `${n} · ${GEM_EN[n]}` : n);   // espaces insécables : le nom et son sens ne se séparent pas
+// Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
+function nomsGem(groupes) {
+  (groupes || []).forEach((g) => {
+    if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
+    const fr = g.nom;
+    Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+  });
+}
+const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
 const MOIS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
@@ -1194,6 +1205,7 @@ const JOURS_LONGS = { fr: ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "v
 
 /* ---------- index et accès aux données ---------- */
 function indexer() {
+  nomsGem(A.e?.groupes); nomsGem(A.e?.soin?.groupes);
   D = A.e && A.e.soin ? A.e.soin : null;
   if (!D) return;
   D.P = {}; D.personnes.forEach((p) => (D.P[p.id] = p));
