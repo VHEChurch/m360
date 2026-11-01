@@ -1732,7 +1732,8 @@ const lienDrive = (type, id, chemin) => { const u = PH[`${type}|${id}`]?.url; re
 /* ---------- service du temple et activités ---------- */
 const semService = (gid) => D.rotation.filter((r) => r.gem === gid).map((r) => r.dimanche);
 const rapportService = (dim, gid) => D.service.find((s) => s.dimanche === dim && s.gem === gid);
-const dossierService = (dim, gid) => `GEM ${gemNom(gid)} – ${dim}`;
+// Le nom réel du dossier Drive, créé par le serveur en français (GEM Joie – date) : il ne se traduit pas, pour qu'on le retrouve dans Drive
+const dossierService = (dim, gid) => `GEM ${nomGemDans(Gg(gid), "fr")} – ${dim}`;
 const concoursDe = (gid) => D.concours.find((x) => x.gem === gid) || { sem: [], deco: null, invites: 0, venus: 0, brebis: 0, acts: 0 };
 function rotation(moi) {
   const ordre = gems().map((g) => [g, semService(g.id).filter((d) => !D.reglages.cycleDebut || d >= D.reglages.cycleDebut)]).filter((x) => x[1].length).sort((a, b) => (a[1][0] < b[1][0] ? -1 : 1));
@@ -1750,7 +1751,7 @@ function carteService(s, juge) {
     : s.deco ? etoiles(s.deco) : `<span class="muted" style="font-size:12px">${tr("Note du jury à venir")}</span>`;
   return `<article class="srv"><div class="row" style="justify-content:space-between;align-items:flex-start"><div><b>${tr("Dimanche {0}", long(d8(s.dimanche)))}</b><div class="muted" style="font-size:12.5px">GEM ${esc(gemNom(s.gem))} · ${tr("{0}/{1} tâches", fait, TACHES.length)} · ${pl(s.equipe.length, "serviteur")} · ${pl(s.photos, "photo")}</div></div>${notation}</div>
     ${galerie("service", s.id, s.photos)}
-    ${lienDrive("service", s.id, `Drive › M360 › ${tr("Service du temple")} › <b>${esc(dossierService(s.dimanche, s.gem))}</b>`)}
+    ${lienDrive("service", s.id, `Drive › M360 › Service du temple › <b>${esc(dossierService(s.dimanche, s.gem))}</b>`)}
     ${s.materiel ? `<p class="hint" style="margin-top:6px"><b>${tr("Matériel :")}</b> ${esc(s.materiel)}</p>` : ""}${s.remarque ? `<p class="hint" style="margin-top:4px"><b>${tr("Remarque :")}</b> ${esc(s.remarque)}</p>` : ""}</article>`;
 }
 function carteActivite(a, avecGem) {
@@ -1758,7 +1759,7 @@ function carteActivite(a, avecGem) {
     <h3>${esc(a.titre)}</h3><p class="muted" style="font-size:13px">${long(d8(a.date))} · ${esc(a.lieu || tr("Lieu non précisé"))}</p>
     <div class="kv3"><span><b class="num">${a.participants.length}</b> ${tr(a.participants.length > 1 ? "membres" : "membre")}</span><span><b class="num">${a.invites}</b> ${tr(a.invites > 1 ? "invités" : "invité")}</span><span><b class="num">${a.nouveaux}</b> ${tr(a.nouveaux > 1 ? "nouveaux venus" : "nouveau venu")}</span></div>
     ${a.cr ? `<p style="font-size:14px;margin-top:10px">${esc(a.cr)}</p>` : ""}
-    ${a.photos ? galerie("activite", a.id, a.photos) + lienDrive("activite", a.id, `Drive › M360 › ${tr("Activités")} › <b>GEM ${esc(gemNom(a.gem))} – ${esc(a.type)} – ${a.date}</b>`) : ""}</article>`;
+    ${a.photos ? galerie("activite", a.id, a.photos) + lienDrive("activite", a.id, `Drive › M360 › Activités › <b>GEM ${esc(nomGemDans(Gg(a.gem), "fr"))} – ${esc(a.type)} – ${a.date}</b>`) : ""}</article>`;
 }
 const activitesTriees = (f = () => true) => D.activites.filter(f).sort((a, b) => (a.date < b.date ? 1 : -1));
 
@@ -1876,7 +1877,7 @@ function blocPhotos(sh, min, chemin) {
   return `<div class="photos">${sh.photos.map((x, j) => `<span class="ph"><img src="${x.vign}" alt="${tr("Photo {0}", j + 1)}"><button type="button" class="ph-x" data-a="photo-x" data-v="${j}" aria-label="${tr("Retirer la photo {0}", j + 1)}">${ic("x", 12)}</button></span>`).join("")}
       <label class="ph add">${ic("camera", 22)}<small>${tr("Prendre ou ajouter")}</small><input type="file" accept="image/*" multiple data-photos="1" hidden></label></div>
     ${sh.prep ? `<p class="hint" style="margin-top:8px">${tr("Préparation des photos…")}</p>` : ""}
-    <p class="drive" style="margin-top:10px">${ic("folder", 15)}<span>${min ? tr("Dossier créé à l'envoi") : tr("Si vous ajoutez des photos, dossier créé à l'enregistrement")} : Drive › M360 › ${chemin}</span></p>${n && min && n < min ? `<p class="hint">${tr("Encore {0} au minimum.", pl(min - n, "photo"))}</p>` : ""}`;
+    <p class="drive" style="margin-top:10px">${ic("folder", 15)}<span>${min ? tr("Dossier créé à l'envoi") : tr("Si vous ajoutez des photos, dossier créé à l'enregistrement")}${LANG === "en" ? ":" : " :"} Drive › M360 › ${chemin}</span></p>${n && min && n < min ? `<p class="hint">${tr("Encore {0} au minimum.", pl(min - n, "photo"))}</p>` : ""}`;
 }
 function feuilleService(sh) {
   const g = Gg(sh.gem), b = sh.b, nT = TACHES.filter(([k]) => b.taches[k]).length, nP = sh.photos.length, min = D.reglages.photosMin || 3;
@@ -1886,7 +1887,7 @@ function feuilleService(sh) {
   return `${entete2(tr("Rapport de service"), tr("GEM {0} · culte du dimanche {1}", esc(g.nom), long(d8(sh.dimanche))))}
   <div class="sheet-bd">
     <div class="q"><h3>${tr("Tâches réalisées")} <small class="num">${tr("{0} sur {1}", nT, TACHES.length)}</small></h3><div class="checks">${TACHES.map(([k, l]) => `<button type="button" class="check" data-a="tache" data-v="${k}" aria-pressed="${!!b.taches[k]}"><span class="bx">${b.taches[k] ? ic("check", 14) : ""}</span>${tr(l)}</button>`).join("")}</div></div>
-    <div class="q"><h3>${tr("Photos du temple")} <small>${tr("au moins {0}", min)} · ${pl(nP, "ajoutée")}</small></h3>${blocPhotos(sh, min, `${tr("Service du temple")} › <b>${esc(dossierService(sh.dimanche, g.id))}</b>`)}</div>
+    <div class="q"><h3>${tr("Photos du temple")} <small>${tr("au moins {0}", min)} · ${pl(nP, "ajoutée")}</small></h3>${blocPhotos(sh, min, `Service du temple › <b>${esc(dossierService(sh.dimanche, g.id))}</b>`)}</div>
     <div class="q"><h3>${tr("Équipe présente")} <small>${pl(b.equipe.length, "personne")}</small></h3><div class="chips">${equipe.map((p) => chip("equipe", p.id, esc(`${p.prenom} ${(p.nom || "")[0] || ""}.`), b.equipe.includes(p.id))).join("") || `<span class="muted">${tr("Aucun membre engagé pour l'instant.")}</span>`}</div><p class="hint" style="margin-top:8px">${tr("Chaque présence compte pour le prix Superstar.")}</p></div>
     <div class="q stack" style="gap:12px"><div class="field"><label for="s-mat">${tr("Matériel à racheter")}</label><input id="s-mat" data-f="materiel" value="${esc(b.materiel)}" placeholder="${tr("Ex. : produit pour les vitres")}"></div>
       <div class="field"><label for="s-rem">${tr("Remarque pour le pasteur")}</label><textarea id="s-rem" data-f="remarque" placeholder="${tr("Une réparation à prévoir, une difficulté…")}">${esc(b.remarque)}</textarea></div></div>
@@ -1910,7 +1911,7 @@ function feuilleActivite(sh) {
       <div class="field" style="flex:1;min-width:120px"><label for="ac-nv">${tr("Dont nouveaux venus")}</label><input id="ac-nv" type="number" min="0" inputmode="numeric" data-f="nouveaux" value="${esc(b.nouveaux)}" placeholder="0"></div></div></div>
     <div class="q stack" style="gap:12px"><div class="field"><label for="ac-cr">${tr("Compte rendu")}</label><textarea id="ac-cr" data-f="cr" placeholder="${tr("Ce qui s'est passé, en quelques lignes")}">${esc(b.cr)}</textarea></div>
       <div class="field"><label for="ac-joie">${tr("Sujet de joie (facultatif)")}</label><input id="ac-joie" data-f="joie" value="${esc(b.joie)}" placeholder="${tr("Un témoignage à partager")}"></div></div>
-    <div class="q"><h3>${tr("Photos")} <small>${tr("facultatif")}</small></h3>${blocPhotos(sh, 0, `${tr("Activités")} › <b>GEM ${esc(g.nom)} – ${esc(b.type || tr("Activité"))} – ${esc(b.date)}</b>`)}</div>
+    <div class="q"><h3>${tr("Photos")} <small>${tr("facultatif")}</small></h3>${blocPhotos(sh, 0, `Activités › <b>GEM ${esc(nomGemDans(g, "fr"))} – ${esc(b.type || "Activité")} – ${esc(b.date)}</b>`)}</div>
     ${sh.envoi ? `<p class="hint" role="status">${esc(sh.envoi)}</p>` : ""}
   </div>
   <div class="sheet-ft"><button class="btn btn-s" data-a="fermer" ${sh.envoi ? "disabled" : ""}>${tr("Annuler")}</button><button class="btn btn-p" data-a="enreg-activite" ${ok ? "" : "disabled"}>${tr("Enregistrer l'activité")}</button></div>`;

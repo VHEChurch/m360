@@ -719,7 +719,7 @@ Object.assign(EN, {
   "Cette action est réservée au responsable.": "This action is reserved for the team leader.", "Cette fiche n'existe plus. Rechargez la page.": "This record no longer exists. Please reload the page.",
 });
 
-window.CAPSULES = {"00-vision":{"en":true,"afficheEn":true},"01-croissance":{"en":true,"afficheEn":true},"02-structure":{"en":true,"afficheEn":true},"03-connexion":{"en":true,"afficheEn":true},"04-cercle":{"en":true,"afficheEn":true},"05-gem":{"en":false,"afficheEn":false},"06-amis":{"en":false,"afficheEn":false},"07-famille":{"en":false,"afficheEn":false},"08-pasteur":{"en":false,"afficheEn":false},"09-respect":{"en":false,"afficheEn":false}};
+window.CAPSULES = {"00-vision":{"en":true,"afficheEn":true},"01-croissance":{"en":true,"afficheEn":true},"02-structure":{"en":true,"afficheEn":true},"03-connexion":{"en":true,"afficheEn":true},"04-cercle":{"en":true,"afficheEn":true},"05-gem":{"en":true,"afficheEn":true},"06-amis":{"en":false,"afficheEn":false},"07-famille":{"en":false,"afficheEn":false},"08-pasteur":{"en":false,"afficheEn":false},"09-respect":{"en":false,"afficheEn":false}};
 /* M360 Formation · contenu des cours (version française ; les textes anglais sont dans contenu-en.js, aux mêmes clés).
    Chaque leçon : intro, étapes (chacune peut piloter le bac à sable : g = { role, vue, etat, cible }), astuce,
    exercice (action attendue dans le bac à sable), quiz (bonne = index de la bonne réponse), mémo (pour la fiche-mémo). */
@@ -1673,13 +1673,13 @@ const LECONS_EN = {
       { t: "The tasks", x: "Tick what was done: floor, restrooms, dusting and windows, stage and pulpit, decoration and flowers, chairs, entrance, tidying up." },
       { t: "The photos", x: "At least 3 photos of the temple, taken with your phone. They are reduced automatically before sending, to go fast even with a weak signal." },
       { t: "The team and the confirmation", x: "Tap the members who were there (each presence counts for the Superstar prize), note the supplies to buy again and a remark, then tick the confirmation." },
-      { t: "Sending", x: "“Send the report”: M360 creates a “GEM … – date” folder in Drive › M360 › Temple service, files the photos in it, and the pastor can rate the decoration." },
+      { t: "Sending", x: "“Send the report”: M360 creates a “GEM … – date” folder in Drive › M360 › Service du temple (the folder names stay in French), files the photos in it, and the pastor can rate the decoration." },
     ],
     astuce: "Take the photos just before the service, when everything is ready: they are what the jury looks at for the decoration.",
     exercice: { consigne: "Write the service report: tick some tasks, add 3 photos (any photos), tick the confirmation, then send.", bravo: "Service report sent. In the real M360, the photos would now be in Drive." },
     quiz: [
       { q: "How many photos at least for the service report?", r: ["1", "3", "10"], pourquoi: "At least 3 photos of the temple." },
-      { q: "Where do the photos go?", r: ["Only to my phone's gallery", "To Drive › M360 › Temple service › “GEM … – date”"], pourquoi: "One folder per GEM and per Sunday, created automatically." },
+      { q: "Where do the photos go?", r: ["Only to my phone's gallery", "To Drive › M360 › Service du temple › “GEM … – date”"], pourquoi: "One folder per GEM and per Sunday, created automatically." },
       { q: "What is the list of the team present for?", r: ["Nothing", "Each presence counts for the Superstar prize"], pourquoi: "Service is part of the faithfulness that is rewarded." },
     ],
     memo: ["2 Sundays in a row per GEM.", "Tasks + 3 photos + team + confirmation.", "Photos filed in Drive, decoration rated by the pastor."],
@@ -1690,7 +1690,7 @@ const LECONS_EN = {
     etapes: [
       { t: "Add an activity", x: "Activities tab, “Add” button. Choose the type, a title, the date and the place." },
       { t: "Who was there", x: "Tap the members who were there, then enter the number of guests and, among them, the newcomers." },
-      { t: "Report and joy", x: "A few lines about what happened, and a joy to share. Photos if you like: they go to Drive › M360 › Activities." },
+      { t: "Report and joy", x: "A few lines about what happened, and a joy to share. Photos if you like: they go to Drive › M360 › Activités." },
     ],
     astuce: "Record the activity the same evening: the details are still fresh, and guests are easier to count.",
     exercice: { consigne: "Add an activity: type “Agape meal”, a title, then “Save the activity”.", bravo: "Activity saved: it appears in GEM life." },
@@ -2029,7 +2029,7 @@ const FAQ_EN = [
   ["GEM", "I do not see the “Temple service” card.", "It appears when your GEM is on duty according to the planned rotation. Outside the rotation: Service tab → “Write the report for …”."],
   ["GEM", "Sending the photos is slow.", "Photos are reduced before sending, but a weak signal slows things down. Stay on the screen until the final message, or switch to Wi-Fi."],
   ["GEM", "A photo did not go through.", "The final message says so. The report is saved; ask the pastor to add the photo to the Drive folder."],
-  ["GEM", "Where are the photos filed?", "Drive › M360 › Temple service › “GEM … – date” (or › Activities)."],
+  ["GEM", "Where are the photos filed?", "Drive › M360 › Service du temple › “GEM … – date” (or › Activités). The folder names stay in French."],
   ["GEM", "How do I add a member to my GEM?", "My circles → “Add a member”. The postal code suggests the zone and the circle."],
   ["GEM", "How do I move someone to another circle?", "Open their profile, “Circle” line, choose the new circle."],
   ["GEM", "What is the “No circle” tab?", "Your members with no circle: you do their follow-up yourself until they are entrusted to a circle."],
