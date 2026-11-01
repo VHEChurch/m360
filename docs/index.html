@@ -636,7 +636,8 @@ a.qr{display:block}
 .regle-al svg{flex:none;width:15px;height:15px;margin-top:1px}
 .regle-al.warn{background:var(--warn-soft);color:var(--warn)}
 .regle-al.crit{background:var(--crit-soft);color:var(--crit)}
-.hbar .sens{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
+.hbar .sens,.tbl .sens{display:block;font-size:11.5px;font-weight:500;color:var(--muted);line-height:1.2}
+.tbl .sens{font-style:italic}
 
 </style>
 </head><body>
@@ -672,7 +673,9 @@ function nomsGem(groupes) {
 // Dans une barre étroite : « GEM Fidélité », et le sens anglais en dessous
 const gemBarre = (g) => { const fr = g.nomFr ?? g.nom; return `GEM ${esc(fr)}${LANG === "en" && GEM_EN[fr] ? `<small class="sens">${GEM_EN[fr]}</small>` : ""}`; };
 const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
-const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
+// Pluriel : au-delà de 1 en français, tout sauf 1 en anglais (« 0 photos »)
+const plur = (n) => (LANG === "en" ? n !== 1 : n > 1);
+const pl = (n, mot, plur_) => `${n} ${tr(plur(n) ? plur_ || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
 const MOIS_FR = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
 const MOIS_L_FR = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
@@ -1545,7 +1548,7 @@ function carteService(s, juge) {
 function carteActivite(a, avecGem) {
   return `<article class="act"><div class="row" style="gap:6px"><span class="pill p-brand">${esc(tr(a.type))}</span>${avecGem ? `<span class="pill p-neutral">GEM ${esc(gemNom(a.gem))}</span>` : ""}</div>
     <h3>${esc(a.titre)}</h3><p class="muted" style="font-size:13px">${long(d8(a.date))} · ${esc(a.lieu || tr("Lieu non précisé"))}</p>
-    <div class="kv3"><span><b class="num">${a.participants.length}</b> ${tr(a.participants.length > 1 ? "membres" : "membre")}</span><span><b class="num">${a.invites}</b> ${tr(a.invites > 1 ? "invités" : "invité")}</span><span><b class="num">${a.nouveaux}</b> ${tr(a.nouveaux > 1 ? "nouveaux venus" : "nouveau venu")}</span></div>
+    <div class="kv3"><span><b class="num">${a.participants.length}</b> ${tr(plur(a.participants.length) ? "membres" : "membre")}</span><span><b class="num">${a.invites}</b> ${tr(plur(a.invites) ? "invités" : "invité")}</span><span><b class="num">${a.nouveaux}</b> ${tr(plur(a.nouveaux) ? "nouveaux venus" : "nouveau venu")}</span></div>
     ${a.cr ? `<p style="font-size:14px;margin-top:10px">${esc(a.cr)}</p>` : ""}
     ${a.photos ? galerie("activite", a.id, a.photos) + lienDrive("activite", a.id, `Drive › M360 › Activités › <b>GEM ${esc(nomGemDans(Gg(a.gem), "fr"))} – ${esc(a.type)} – ${a.date}</b>`) : ""}</article>`;
 }
@@ -2370,7 +2373,7 @@ VUES.tableau = () => {
         <section class="card"><div class="card-hd"><h2>${tr("Santé des GEM")}</h2><span class="muted" style="font-size:12.5px">${tr("Touchez un GEM")}</span></div><div class="tbl-wrap"><table class="tbl">
           <thead><tr><th>GEM</th><th class="r">${tr("Engagés")}</th><th class="r">${tr("Culte")}</th><th class="r">${tr("Météo")}</th><th class="r">${tr("Cercles")}</th></tr></thead><tbody>
           ${gems().map((g) => { const l = membresGem(g.id), s = stats(w, l.map((p) => p.id)), cs = groupesRapport(g.id), na = al.filter((a) => a.p.gem === g.id).length;
-            return `<tr><td><button class="plain" data-a="gem" data-v="${g.id}"><b>GEM ${esc(g.nom)}</b>${gs === g.id ? ` <span class="pill p-brand" style="padding:1px 7px">${tr("Service")}</span>` : ""}<small>${esc(nomId(g.responsable))}${na ? ` · <span style="color:var(--warn);font-weight:700">${tr("{0} à suivre", na)}</span>` : ""}</small></button></td><td class="r num">${l.filter((p) => estEngage(p, w)).length}/${l.length}</td><td class="r num">${s.culte ?? "—"}${s.culte != null ? " %" : ""}</td><td class="r num">${s.meteo ? s.meteo.toFixed(1) : "—"}</td><td class="r num">${cs.filter((c) => estEnvoye(w, c)).length}/${cs.length}</td></tr>`; }).join("")}
+            return `<tr><td><button class="plain" data-a="gem" data-v="${g.id}"><b>${gemBarre(g)}</b>${gs === g.id ? ` <span class="pill p-brand" style="padding:1px 7px">${tr("Service")}</span>` : ""}<small>${esc(nomId(g.responsable))}${na ? ` · <span style="color:var(--warn);font-weight:700">${tr("{0} à suivre", na)}</span>` : ""}</small></button></td><td class="r num">${l.filter((p) => estEngage(p, w)).length}/${l.length}</td><td class="r num">${s.culte ?? "—"}${s.culte != null ? " %" : ""}</td><td class="r num">${s.meteo ? s.meteo.toFixed(1) : "—"}</td><td class="r num">${cs.filter((c) => estEnvoye(w, c)).length}/${cs.length}</td></tr>`; }).join("")}
           </tbody></table></div></section>
         <section class="card"><div class="card-hd"><h2>${tr("Service du temple")}</h2><button class="link" data-a="vue" data-v="vie">${tr("Vie des GEM")} ${ic("right", 14)}</button></div>
           ${gs ? `<p style="font-size:14px"><b>GEM ${esc(gemNom(gs))}</b> · ${tr("dimanches {0}", semService(gs).filter((d) => !D.reglages.cycleDebut || d >= D.reglages.cycleDebut).map((d) => court(d8(d))).join(tr(" et ")))}</p>
@@ -2602,7 +2605,7 @@ const RESP_L = { gem: "Responsable de GEM", departement: "Responsable de départ
 function vueRecensement(s0) {
   const R = D.recensement || { total: 0, integres: 0, parGem: {}, lignes: [] };
   const attente = R.lignes.filter((r) => r.statut !== "intégré"), resps = R.lignes.filter((r) => r.statut === "intégré" && r.resps.length && !r.respStatut);
-  const g = [...gems().map((x) => [x.id, `GEM ${x.nom}`]), ["", tr("Sans GEM")]], max = Math.max(1, ...g.map(([k]) => R.parGem[k] || 0));
+  const g = [...gems().map((x) => [x.id, gemBarre(x)]), ["", esc(tr("Sans GEM"))]], max = Math.max(1, ...g.map(([k]) => R.parGem[k] || 0));
   const msgPartage = tr("Recensement de l'église · Love Expression Assembly : une minute pour le remplir.") + " " + URL_REC();
   const ligne = (r) => `<div class="li"><span class="avatar">${esc(((r.prenom || "?")[0] + ((r.nom || "")[0] || "")).toUpperCase())}</span><span class="grow">
       <span class="name" style="font-size:14px">${esc(`${r.prenom} ${r.nom}`)} ${r.rang && r.rang !== "Membre" ? `<span class="rang ${esc(r.rang)}">${tr(RANGS[r.rang] || r.rang)}</span>` : ""}</span>
@@ -2620,7 +2623,7 @@ function vueRecensement(s0) {
       <section class="card"><h2>${tr("Faire circuler le formulaire")}</h2><p class="hint" style="margin-top:4px">${tr("Envoyez ce lien dans le groupe de chaque GEM et dans la communauté WhatsApp. Une réponse en double (même numéro) met à jour la première.")}</p>
         <p class="wa-msg" style="margin-top:10px;word-break:break-all">${esc(URL_REC())}</p>
         <div class="row" style="gap:8px;margin-top:10px"><a class="btn btn-p btn-sm" href="https://wa.me/?text=${encodeURIComponent(msgPartage)}" target="_blank" rel="noopener">${ic("chat", 15)} ${tr("Partager sur WhatsApp")}</a><button class="btn btn-s btn-sm" data-a="copier-lien" data-v="${esc(URL_REC())}">${ic("copy", 15)} ${tr("Copier le lien")}</button><a class="btn btn-s btn-sm" href="${URL_REC()}?equipe=1" target="_blank" rel="noopener">${ic("people", 15)} ${tr("Inscrire un membre silencieux")}</a></div></section>
-      <section class="card"><h2>${tr("Réponses par GEM")}</h2><div style="margin-top:8px">${g.map(([k, l]) => `<div class="hbar"><span>${esc(l)}</span><span class="t"><i style="width:${pct(R.parGem[k] || 0, max)}%"></i></span><b class="num" style="text-align:right">${R.parGem[k] || 0}</b></div>`).join("")}</div></section>
+      <section class="card"><h2>${tr("Réponses par GEM")}</h2><div style="margin-top:8px">${g.map(([k, l]) => `<div class="hbar"><span>${l}</span><span class="t"><i style="width:${pct(R.parGem[k] || 0, max)}%"></i></span><b class="num" style="text-align:right">${R.parGem[k] || 0}</b></div>`).join("")}</div></section>
     </div>
     <section class="card"><div class="card-hd"><h2>${tr("À intégrer")}</h2>${attente.length > 1 ? `<button class="btn btn-p btn-sm" data-a="integrer" data-v="*" ${A.occupe ? "disabled" : ""}>${tr("Tout intégrer ({0})", attente.length)}</button>` : ""}</div>
       <p class="hint" style="margin:-4px 0 6px">${tr("Intégrer crée la fiche (ou complète celle qui existe, reconnue par le téléphone ou le nom) avec le GEM, le rang, les départements et un palier de départ d'après la fréquence déclarée. Le cercle n'est jamais modifié.")}</p>
