@@ -395,6 +395,7 @@ a.qr{display:block}
 .regle-al svg{flex:none;width:15px;height:15px;margin-top:1px}
 .regle-al.warn{background:var(--warn-soft);color:var(--warn)}
 .regle-al.crit{background:var(--crit-soft);color:var(--crit)}
+.hbar .sens{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
 
 /* ---------- recensement : une question par écran, sur le vert profond de l'église, accents or ---------- */
 :root{--rc-bg:#003F3D;--rc-bg2:#00524E;--rc-ink:#FFFFFF;--rc-ink2:rgba(255,255,255,.78);--rc-line:rgba(255,255,255,.18);--rc-tile:rgba(255,255,255,.07);--rc-tile-h:rgba(255,255,255,.12);--rc-gold:#D2AF1F;--rc-gold-soft:rgba(210,175,31,.16)}
@@ -501,14 +502,18 @@ const nomGemLang = (n, l = LANG) => (l === "en" && GEM_EN[n] ? `${n} · ${GEM_
 // Le nom d'un GEM dans la langue d'un message (celle de la carte du nouveau), et non dans celle de l'écran
 const nomGemDans = (g, l) => (g ? nomGemLang(g.nomFr ?? g.nom, l) : "");
 // Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
+// Familles d'honneur : en anglais, le nom suit la zone (« Famille d'honneur Ouest » → « West Family of Honour »)
+const nomFamilleLang = (n, l = LANG) => { const m = l === "en" && /^Famille d'honneur (.+)$/.exec(n); return m ? `${tr(m[1])} Family of Honour` : n; };
 function nomsGem(groupes) {
   (groupes || []).forEach((g) => {
-    if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
-    const fr = g.nom;
-    Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+    if ((g.type !== "gem" && g.type !== "famille") || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
+    const fr = g.nom, lang = g.type === "gem" ? nomGemLang : nomFamilleLang;
+    Object.defineProperty(g, "nom", { get: () => lang(fr), enumerable: true, configurable: true });
     Object.defineProperty(g, "nomFr", { value: fr, configurable: true });
   });
 }
+// Dans une barre étroite : « GEM Fidélité », et le sens anglais en dessous
+const gemBarre = (g) => { const fr = g.nomFr ?? g.nom; return `GEM ${esc(fr)}${LANG === "en" && GEM_EN[fr] ? `<small class="sens">${GEM_EN[fr]}</small>` : ""}`; };
 const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
@@ -628,7 +633,7 @@ const RX = {
     q3: "Where do you live?", q3h: "Start typing your address, then pick it from the list. It is used to form circles near where you live.",
     adresse: "Address", cp: "Postal code", osm: "Address suggestions: OpenStreetMap", aucune: "No address found. Keep typing, or just enter your postal code.",
     q4: "Your GEM", q4h: "The Encouragement and Harvest Group you belong to.", sansGem: "I don't have a GEM yet",
-    q5: "Your rank in the path", rangs: { Membre: ["Member", "I am part of the church"], Serviteur: ["Helper", "I serve in a department"], GA: ["SW", "Soul winner"], AP: ["AP", "Assistant pastor"] },
+    q5: "Your rank in the path", rangs: { Membre: ["Member", "I am part of the church"], Serviteur: ["Servant", "I serve in a department"], GA: ["SW", "Soul Winner"], AP: ["AP", "Assistant pastor"] },
     q6: "Which departments do you serve in?", q6h: "Tap all that apply.", aucunDep: "I don't serve yet",
     q7: "Do you have a responsibility?", q7h: "The pastor will confirm it before it appears in M360.",
     resps: { gem: "Leader of my GEM", departement: "Leader of a department", famille: "Leader of a Family of Honour" }, aucuneResp: "No responsibility for now",

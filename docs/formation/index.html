@@ -392,6 +392,7 @@ a.qr{display:block}
 .regle-al svg{flex:none;width:15px;height:15px;margin-top:1px}
 .regle-al.warn{background:var(--warn-soft);color:var(--warn)}
 .regle-al.crit{background:var(--crit-soft);color:var(--crit)}
+.hbar .sens{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
 
 /* ---------- M360 Formation : le vert profond de l'église pour les en-têtes, des pages de cours claires et lisibles, accents or ---------- */
 body{background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased}
@@ -640,14 +641,18 @@ const nomGemLang = (n, l = LANG) => (l === "en" && GEM_EN[n] ? `${n} · ${GEM_
 // Le nom d'un GEM dans la langue d'un message (celle de la carte du nouveau), et non dans celle de l'écran
 const nomGemDans = (g, l) => (g ? nomGemLang(g.nomFr ?? g.nom, l) : "");
 // Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
+// Familles d'honneur : en anglais, le nom suit la zone (« Famille d'honneur Ouest » → « West Family of Honour »)
+const nomFamilleLang = (n, l = LANG) => { const m = l === "en" && /^Famille d'honneur (.+)$/.exec(n); return m ? `${tr(m[1])} Family of Honour` : n; };
 function nomsGem(groupes) {
   (groupes || []).forEach((g) => {
-    if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
-    const fr = g.nom;
-    Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+    if ((g.type !== "gem" && g.type !== "famille") || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
+    const fr = g.nom, lang = g.type === "gem" ? nomGemLang : nomFamilleLang;
+    Object.defineProperty(g, "nom", { get: () => lang(fr), enumerable: true, configurable: true });
     Object.defineProperty(g, "nomFr", { value: fr, configurable: true });
   });
 }
+// Dans une barre étroite : « GEM Fidélité », et le sens anglais en dessous
+const gemBarre = (g) => { const fr = g.nomFr ?? g.nom; return `GEM ${esc(fr)}${LANG === "en" && GEM_EN[fr] ? `<small class="sens">${GEM_EN[fr]}</small>` : ""}`; };
 const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
@@ -719,7 +724,7 @@ Object.assign(EN, {
   "Cette action est réservée au responsable.": "This action is reserved for the team leader.", "Cette fiche n'existe plus. Rechargez la page.": "This record no longer exists. Please reload the page.",
 });
 
-window.CAPSULES = {"00-vision":{"en":true,"afficheEn":true},"01-croissance":{"en":true,"afficheEn":true},"02-structure":{"en":true,"afficheEn":true},"03-connexion":{"en":true,"afficheEn":true},"04-cercle":{"en":true,"afficheEn":true},"05-gem":{"en":true,"afficheEn":true},"06-amis":{"en":true,"afficheEn":true},"07-famille":{"en":false,"afficheEn":false},"08-pasteur":{"en":false,"afficheEn":false},"09-respect":{"en":false,"afficheEn":false}};
+window.CAPSULES = {"00-vision":{"en":true,"afficheEn":true},"01-croissance":{"en":true,"afficheEn":true},"02-structure":{"en":true,"afficheEn":true},"03-connexion":{"en":true,"afficheEn":true},"04-cercle":{"en":true,"afficheEn":true},"05-gem":{"en":true,"afficheEn":true},"06-amis":{"en":true,"afficheEn":true},"07-famille":{"en":true,"afficheEn":true},"08-pasteur":{"en":false,"afficheEn":false},"09-respect":{"en":false,"afficheEn":false}};
 /* M360 Formation · contenu des cours (version française ; les textes anglais sont dans contenu-en.js, aux mêmes clés).
    Chaque leçon : intro, étapes (chacune peut piloter le bac à sable : g = { role, vue, etat, cible }), astuce,
    exercice (action attendue dans le bac à sable), quiz (bonne = index de la bonne réponse), mémo (pour la fiche-mémo). */
@@ -1469,7 +1474,7 @@ const LECONS_EN = {
       { t: "The 5 GEMs", x: "Amour · Love, Patience, Joie · Joy, Bonté · Goodness, Fidélité · Faithfulness. The French name is the one everyone uses; in English, M360 shows its meaning next to it. Each GEM keeps its WhatsApp group, its meeting, its turn of service at the temple, and takes part in the contest." },
       { t: "Care circles", x: "In each GEM, 3 or 4 circles of about 6 people who live close to one another. The circle leader checks in on each person every week: they are the one who fills in the follow-up." },
       { t: "Families of Honour", x: "Edmonton is divided into 4 zones: North, South, West, Centre. The Family of Honour of each zone gathers the members of the neighbourhood once a month. It does no individual follow-up: that stays with the GEM and the circle." },
-      { t: "Place, not rank", x: "The rank in the training path (Member, Servant, GA, AP) describes each person's formation journey. What you see in M360 depends on your place in the care tree, never on your rank." },
+      { t: "Place, not rank", x: "The rank in the training path (Member, Servant, SW for Soul Winner, AP) describes each person's formation journey. What you see in M360 depends on your place in the care tree, never on your rank." },
       { t: "The rule of 5", x: "No one cares for more than five or six people. A circle has at most 6 members, not counting its leader: at the 7th, a new circle opens in the GEM. A GEM leader cares for at most 5 circle leaders: so a GEM has at most 5 circles, that is 25 to 30 people. Beyond that, it multiplies into a neighbourhood GEM. M360 shows these two limits and warns you when they are reached." },
     ],
     astuce: "If you wonder “who is looking after this person?”, open their profile: the “Shepherd” line tells you.",
@@ -2074,10 +2079,10 @@ const GLOSSAIRE_EN = [
   ["Lost Sheep Found", "The operation of personal outreach to irregular and lapsed members, once a month."],
   ["Care circle", "5 or 6 people from the same GEM (6 at most), living close to one another, cared for by a circle leader."],
   ["Contest", "At each service cycle: prizes for decoration, guests, lost sheep found, Superstar and Superhero."],
-  ["Training path", "The formation journey: Member, Servant, GA, AP, Associate Pastor, Resident Pastor."],
+  ["Training path", "The formation journey: Member, Servant, SW (Soul Winner), AP, Associate Pastor, Resident Pastor."],
   ["Lapsed", "A member absent for more than a month, who hardly answers anymore."],
   ["Family of Honour", "The monthly gathering of the members of one zone, without individual follow-up."],
-  ["GA", "Soul winner (Gagneur d'âmes): evangelises, invites, and cares for the souls entrusted to them."],
+  ["SW", "Soul Winner (in French, Gagneur d'âmes, GA): evangelises, invites, and cares for the souls entrusted to them."],
   ["GEM", "Our small groups for encouragement and harvest. The name comes from French: Groupe d'Encouragement et de Moisson. In English, a gem is a precious stone, and every person in a GEM is one. Five today: Amour · Love, Patience, Joie · Joy, Bonté · Goodness, Fidélité · Faithfulness."],
   ["Irregular", "A member who comes less than one Sunday out of two."],
   ["Kaleo", "The church's invitation platform, linked to M360."],

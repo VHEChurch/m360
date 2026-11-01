@@ -634,6 +634,7 @@ a.qr{display:block}
 .regle-al svg{flex:none;width:15px;height:15px;margin-top:1px}
 .regle-al.warn{background:var(--warn-soft);color:var(--warn)}
 .regle-al.crit{background:var(--crit-soft);color:var(--crit)}
+.hbar .sens{display:block;font-size:11.5px;color:var(--muted);line-height:1.2}
 
 </style>
 </head><body>
@@ -877,14 +878,18 @@ const nomGemLang = (n, l = LANG) => (l === "en" && GEM_EN[n] ? `${n} · ${GEM_
 // Le nom d'un GEM dans la langue d'un message (celle de la carte du nouveau), et non dans celle de l'écran
 const nomGemDans = (g, l) => (g ? nomGemLang(g.nomFr ?? g.nom, l) : "");
 // Posé une fois à l'arrivée des données : le nom affiché suit ensuite la langue choisie, sans rien changer aux données ni au serveur
+// Familles d'honneur : en anglais, le nom suit la zone (« Famille d'honneur Ouest » → « West Family of Honour »)
+const nomFamilleLang = (n, l = LANG) => { const m = l === "en" && /^Famille d'honneur (.+)$/.exec(n); return m ? `${tr(m[1])} Family of Honour` : n; };
 function nomsGem(groupes) {
   (groupes || []).forEach((g) => {
-    if (g.type !== "gem" || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
-    const fr = g.nom;
-    Object.defineProperty(g, "nom", { get: () => nomGemLang(fr), enumerable: true, configurable: true });
+    if ((g.type !== "gem" && g.type !== "famille") || Object.getOwnPropertyDescriptor(g, "nom")?.get) return;
+    const fr = g.nom, lang = g.type === "gem" ? nomGemLang : nomFamilleLang;
+    Object.defineProperty(g, "nom", { get: () => lang(fr), enumerable: true, configurable: true });
     Object.defineProperty(g, "nomFr", { value: fr, configurable: true });
   });
 }
+// Dans une barre étroite : « GEM Fidélité », et le sens anglais en dessous
+const gemBarre = (g) => { const fr = g.nomFr ?? g.nom; return `GEM ${esc(fr)}${LANG === "en" && GEM_EN[fr] ? `<small class="sens">${GEM_EN[fr]}</small>` : ""}`; };
 const guil = (s) =>(LANG === "en" ? `“${s}”` : `« ${s} »`);   // citer une saisie avec les guillemets de la langue
 const pl = (n, mot, plur) => `${n} ${tr(n > 1 ? plur || mot + "s" : mot)}`;
 const pct = (n, d) => (d ? Math.round((100 * n) / d) : 0);
@@ -1074,7 +1079,7 @@ Object.assign(EN, {
   // mots comptés (pl)
   "personne": "person", "personnes": "people", "membre": "member", "membres": "members", "cercle": "circle", "cercles": "circles",
   "cercle de soin": "care circle", "cercles de soin": "care circles", "jour": "day", "jours": "days", "photo": "photo", "photos": "photos",
-  "point": "check-in", "points": "check-ins", "serviteur": "helper", "serviteurs": "helpers", "ajoutée": "added", "ajoutées": "added",
+  "point": "check-in", "points": "check-ins", "serviteur": "servant", "serviteurs": "servants", "ajoutée": "added", "ajoutées": "added",
   "présent": "present", "présents": "present", "GEM différent": "different GEM", "GEM différents": "different GEMs",
   "personne signalée": "person flagged", "personnes signalées": "people flagged", "brebis": "sheep", "revenue": "returned", "revenues": "returned",
   "retour": "return", "retours": "returns", "venu": "came", "venus": "came", "service": "service", "services": "services",
@@ -1122,7 +1127,7 @@ Object.assign(EN, {
   "Opération Brebis retrouvées : un membre actif le relance nommément (appel, visite, invitation).": "Lost Sheep Found: an active member reaches out personally (call, visit, invitation).",
   "Arrivé depuis moins de trois mois.": "Arrived less than three months ago.",
   "L'accueillir, lui présenter la vision et le confier à un cercle (Amis des Nouveaux).": "Welcome them, share the vision and entrust them to a circle (Newcomers' Friends).",
-  "GA": "SW", "AP": "AP", "SERVITEUR": "HELPER", "Serviteur": "Helper", "assistant pasteur": "an assistant pastor", "gagneur d'âmes": "a soul winner",
+  "GA": "SW", "AP": "AP", "SERVITEUR": "SERVANT", "Serviteur": "Servant", "assistant pasteur": "an assistant pastor", "gagneur d'âmes": "a Soul Winner",
   "leaders": "leaders", "zone d'intégration": "integration zone", "Recul": "Step back", "Arrivée": "Arrival", "Progression": "Step up",
   "Mercredi des Champions": "Champions Wednesday", "Réunions de GEM": "GEM meetings", "Oui, c'est urgent": "Yes, it's urgent",
   // calculs et briques
@@ -2527,7 +2532,7 @@ VUES.zone = () => {
     <div class="hello"><h1>${esc(f.nom)}</h1><p>${tr("{0} de GEM habitent la zone {1}. Ils viennent de {2}.", pl(ps.length, "membre"), zoneNom(f.zone), pl(parGem.length, "GEM différent", "GEM différents"))}</p></div>
     <div class="signal">${ic("map", 18)}<span>${tr("La famille d'honneur rassemble la zone une fois par mois. Le suivi de chaque personne reste dans son GEM et son cercle : vous ne recevez pas les rapports, mais vous connaissez votre quartier et vous pouvez inviter, visiter, covoiturer.")}</span></div>
     <div class="grid2">
-      <section class="card"><h2>${tr("De quels GEM viennent-ils ?")}</h2><div style="margin-top:8px">${parGem.map(([g, l]) => `<div class="hbar"><span>GEM ${esc(g.nom)}</span><span class="t"><i style="width:${pct(l.length, nmax)}%"></i></span><b class="num" style="text-align:right">${l.length}</b></div>`).join("") || `<p class="muted" style="font-size:13px">${tr("Personne pour l'instant.")}</p>`}</div></section>
+      <section class="card"><h2>${tr("De quels GEM viennent-ils ?")}</h2><div style="margin-top:8px">${parGem.map(([g, l]) => `<div class="hbar"><span>${gemBarre(g)}</span><span class="t"><i style="width:${pct(l.length, nmax)}%"></i></span><b class="num" style="text-align:right">${l.length}</b></div>`).join("") || `<p class="muted" style="font-size:13px">${tr("Personne pour l'instant.")}</p>`}</div></section>
       <section class="card"><div class="card-hd"><h2>${tr("Prochaine rencontre")}</h2>${f.rencontre ? `<span class="pill p-brand">${esc(f.rencontre)}</span>` : ""}</div>
         <p style="font-size:14px">${tr("Invitez personnellement les nouveaux et les personnes qui se sont éloignées : la rencontre de quartier est souvent la porte du retour.")}</p>
         <div class="kv3" style="margin-top:12px"><span><b class="num">${nouveaux.length}</b>${tr("nouveaux")}</span><span><b class="num">${loin.length}</b>${tr("à inviter personnellement")}</span><span><b class="num">${ps.length}</b>${tr("dans la zone")}</span></div>
